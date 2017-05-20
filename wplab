@@ -1,0 +1,390 @@
+#!/bin/bash
+
+CONFIG_FILE=wplab_config.sh
+WPLAB_DIR_NAME=wplab
+DOCKER_COMPOSE_FILE=docker-compose.yml
+HOSTS_FILE=/etc/hosts
+
+function usage()
+{
+    echo "Usage: wplab ACTION where ACTION=[init|start|stop|register_host|deregister_host|reregister_host|clear|install|uninstall|build_theme]"
+}
+
+function wp_howto()
+{
+    fetch_wp_ip
+    echo "Connect to WP via:"
+    echo "- http://localhost:8000/"
+    echo "- http://$WP_IP/"
+    echo "- http://$PROJECT_NAME/ (you need first to run 'register_host')"
+    echo ""
+    echo "Note: If it is the first time you start the project, you might have to wait a few minutes before WP is actually available."
+}
+
+function load_config()
+{
+    source $CONFIG_FILE
+    if [[ "$PROJECT_NAME" == "" ]]
+    then
+        echo "No project name defined"
+        return 1
+    fi
+}
+
+function start_containers()
+{
+    docker-compose up -d
+}
+
+function stop_containers()
+{
+    docker-compose stop
+}
+
+function fetch_wp_container_id()
+{
+    WP_CONTAINER_ID=$(docker ps | grep $PROJECT_NAME"_wordpress" | cut -f1 -d" ")
+}
+
+function fetch_wp_ip()
+{
+    WP_IP=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $WP_CONTAINER_ID)
+}
+
+function wait_wp_container()
+{
+    while true
+    do
+        fetch_wp_container_id
+        if [[ "$WP_CONTAINER_ID" == "" ]]
+        then
+            echo "Container not yet available, waiting for 3 secs..."
+            sleep 3
+        else
+            break
+        fi
+    done
+}
+
+function start_project()
+{
+    cd $WPLAB_DIR_NAME/$PROJECT_NAME
+    start_containers
+    wait_wp_container
+    wp_howto
+}
+
+function stop_project()
+{
+    cd $WPLAB_DIR_NAME/$PROJECT_NAME
+    stop_containers
+}
+
+function init()
+{
+    test_setup
+    if [[ $? == 0 ]]
+    then
+        echo "Project seems to be already set up"
+        return 1
+    fi
+
+    mkdir -p prototypes
+    mkdir -p themes
+    mkdir -p plugins
+
+    mkdir -p $WPLAB_DIR_NAME/$PROJECT_NAME
+    cat > $WPLAB_DIR_NAME/$PROJECT_NAME/$DOCKER_COMPOSE_FILE << EOF
+version: '2'
+
+services:
+   db:
+     image: mysql:5.7
+     volumes:
+       - db_data:/var/lib/mysql
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: wordpress
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: wordpress
+
+   wordpress:
+     depends_on:
+       - db
+     image: wordpress:latest
+     ports:
+       - "8000:80"
+     restart: always
+     environment:
+       WORDPRESS_DB_HOST: db:3306
+       WORDPRESS_DB_PASSWORD: wordpress
+volumes:
+    db_data:
+EOF
+}
+
+function test_setup()
+{
+    if [ -d $WPLAB_DIR_NAME/$PROJECT_NAME -a -f $WPLAB_DIR_NAME/$PROJECT_NAME/$DOCKER_COMPOSE_FILE ]
+    then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function start() {
+    test_setup
+    if [[ $? != 0 ]]
+    then
+        echo "Project was not already set up"
+        return 1
+    fi
+
+    fetch_wp_container_id
+    if [[ "$WP_CONTAINER_ID" != "" ]]
+    then
+        echo "This WP project is already started"
+        echo ""
+        wp_howto
+        return 1
+    fi
+
+    start_project
+}
+
+function stop() {
+    test_setup
+    if [[ $? != 0 ]]
+    then
+        echo "Project was not already set up"
+        return 1
+    fi
+
+    fetch_wp_container_id
+    if [[ "$WP_CONTAINER_ID" == "" ]]
+    then
+        echo "No WP project to stop"
+        return 1
+    fi
+
+    stop_project
+}
+
+function register_host()
+{
+    test_host_registered
+    if [[ $? == 0 ]]
+    then
+        echo "Host '$PROJECT_NAME' is already registered"
+        return 1
+    fi
+    fetch_wp_container_id
+    if [[ "$WP_CONTAINER_ID" == "" ]]
+    then
+        echo "This WP project must first be started"
+        wp_howto
+        return 1
+    fi
+
+    register_host_with_no_check
+}
+
+function test_host_registered()
+{
+    test -n "$(grep $PROJECT_NAME$ $HOSTS_FILE)"
+    return $?
+}
+
+function backup_hosts()
+{
+    HOSTS_BACKUP_FILE=/tmp/hosts.backup.$(date +%s)
+    cp $HOSTS_FILE $HOSTS_BACKUP_FILE
+}
+
+function register_host_with_no_check()
+{
+    backup_hosts
+    fetch_wp_ip
+    echo -n $WP_IP >> $HOSTS_FILE
+    echo -en '\t' >> $HOSTS_FILE
+    echo $PROJECT_NAME >> $HOSTS_FILE
+}
+
+function deregister_host()
+{
+    test_host_registered
+    if [[ $? != 0 ]]
+    then
+        echo "Host '$PROJECT_NAME' was not registered"
+        return 1
+    fi
+    deregister_host_with_no_check
+}
+
+function deregister_host_with_no_check()
+{
+    backup_hosts
+    TMP_FILE="/tmp/hosts."$(date +%s)
+    grep -v "$PROJECT_NAME" $HOSTS_FILE > $TMP_FILE
+    mv $TMP_FILE $HOSTS_FILE    
+}
+
+function reregister_host()
+{
+    test_host_registered
+    if [[ $? != 0 ]]
+    then
+        echo "Host '$PROJECT_NAME' was not registered"
+        return 1
+    fi
+
+    fetch_wp_container_id
+    deregister_host_with_no_check
+    register_host_with_no_check
+}
+
+function clear()
+{
+    test_setup
+    if [[ $? != 0 ]]
+    then
+        echo "Project was not already set up"
+        return 1
+    fi
+
+    echo "!!! WARNING !!!"
+    echo "Executing this action implies the deletion of all data"
+    echo "!!! WARNING !!!"
+    echo ""
+    echo "Do you really want to clear the project?"
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes )
+                break
+                ;;
+            No )
+                return
+                ;;
+        esac
+    done
+
+    (
+        cd $WPLAB_DIR_NAME/$PROJECT_NAME
+        stop_containers
+        remove_containers
+    )
+    rm -rf $WPLAB_DIR_NAME
+}
+
+function remove_containers()
+{
+    docker-compose down -v
+}
+
+function install()
+{
+    fetch_wp_container_id
+    if [[ "$WP_CONTAINER_ID" == "" ]]
+    then
+        echo "This WP project must first be started"
+        wp_howto
+        return 1
+    fi
+
+    if [ -d themes ]
+    then
+        docker cp themes/* $WP_CONTAINER_ID:/var/www/html/wp-content/themes/
+        docker exec $WP_CONTAINER_ID chown -R www-data:www-data /var/www/html/wp-content/themes/
+    fi
+
+    if [ -d plugins ]
+    then
+        docker cp plugins/* $WP_CONTAINER_ID:/var/www/html/wp-content/plugins/
+        docker exec $WP_CONTAINER_ID chown -R www-data:www-data /var/www/html/wp-content/plugins/
+    fi
+}
+
+function uninstall()
+{
+    fetch_wp_container_id
+    if [[ "$WP_CONTAINER_ID" == "" ]]
+    then
+        echo "This WP project must first be started"
+        wp_howto
+        return 1
+    fi
+
+    if [ -d themes ]
+    then
+        for t in $(ls -1 themes)
+        do
+            docker exec $WP_CONTAINER_ID rm -rf /var/www/html/wp-content/themes/$t
+        done
+    fi
+
+    if [ -d plugins ]
+    then
+        for t in $(ls -1 plugins)
+        do
+            docker exec $WP_CONTAINER_ID rm -rf /var/www/html/wp-content/plugins/$t
+        done
+    fi
+}
+
+function build_theme()
+{
+    wplab-builder prototypes/$1/config
+}
+
+load_config || exit 1
+
+ACTION=$1
+case $ACTION in
+    init)
+        init
+        exit $?
+        ;;
+    start)
+        start
+        exit $?
+        ;;
+    stop)
+        stop
+        exit $?
+        ;;
+    register_host)
+        register_host
+        exit $?
+        ;;
+    deregister_host)
+        deregister_host
+        exit $?
+        ;;
+    reregister_host)
+        reregister_host
+        exit $?
+        ;;
+    clear)
+        clear
+        exit $?
+        ;;
+    install)
+        install
+        exit $?
+        ;;
+    uninstall)
+        uninstall
+        exit $?
+        ;;
+    build_theme)
+        build_theme $2
+        exit $?
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+esac
+
