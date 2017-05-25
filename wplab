@@ -295,13 +295,13 @@ function install()
 
     if [ -d themes ]
     then
-        docker cp themes/* $WP_CONTAINER_ID:/var/www/html/wp-content/themes/
+        docker cp themes/. $WP_CONTAINER_ID:/var/www/html/wp-content/themes/
         docker exec $WP_CONTAINER_ID chown -R www-data:www-data /var/www/html/wp-content/themes/
     fi
 
     if [ -d plugins ]
     then
-        docker cp plugins/* $WP_CONTAINER_ID:/var/www/html/wp-content/plugins/
+        docker cp plugins/. $WP_CONTAINER_ID:/var/www/html/wp-content/plugins/
         docker exec $WP_CONTAINER_ID chown -R www-data:www-data /var/www/html/wp-content/plugins/
     fi
 }

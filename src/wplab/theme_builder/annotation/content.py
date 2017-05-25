@@ -14,7 +14,6 @@ class OpenContent(OpenAnnotation):
         else:
             self._template_name = None
 
-
     @property
     def name(self):
         return NAME
