@@ -1,16 +1,29 @@
 from wplab.theme_builder.annotation import get_annotation
-from wplab.theme_builder.annotation.context import Context
-from wplab.theme_builder.annotation.descriptor import AnnotationDescriptor
-from wplab.theme_builder.annotation.header import register as register_header
-from wplab.theme_builder.annotation.replace import register as register_replace
 from wplab.theme_builder.annotation.content import register as register_content
+from wplab.theme_builder.annotation.descriptor import AnnotationDescriptor
 from wplab.theme_builder.annotation.footer import register as register_footer
+from wplab.theme_builder.annotation.header import register as register_header
+from wplab.theme_builder.annotation.include import register as register_include
+from wplab.theme_builder.annotation.replace import register as register_replace
+
+from wplab.theme_builder.annotation.replace_body import register as register_replace_body
+from wplab.theme_builder.annotation.replace_charset import register as register_replace_charset
+from wplab.theme_builder.annotation.replace_html import register as register_replace_html
+from wplab.theme_builder.annotation.wp_footer import register as register_wp_footer
+from wplab.theme_builder.annotation.wp_head import register as register_wp_head
+from wplab.theme_builder.context import Context
 
 
-register_header()
-register_replace()
-register_footer()
 register_content()
+register_footer()
+register_header()
+register_include()
+register_replace()
+register_replace_body()
+register_replace_charset()
+register_replace_html()
+register_wp_footer()
+register_wp_head()
 
 
 class HtmlParser(object):
@@ -37,7 +50,9 @@ class HtmlParser(object):
 
     def _handle_new_annotation(self, new_annotation):
         new_annotation.context = self._context
-        if new_annotation.is_open():
+        if new_annotation.is_empty():
+            new_annotation.execute()
+        elif new_annotation.is_open():
             self._annotation_stack.append(new_annotation)
             new_annotation.open()
         else:

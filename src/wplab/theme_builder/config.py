@@ -15,3 +15,7 @@ class ThemeBuilderConfig(object):
     @property
     def theme_path(self):
         return self._config.get(self.SECTION, 'theme_path')
+
+    @theme_path.setter
+    def theme_path(self, theme_path):
+        self._config.set(self.SECTION, 'theme_path', theme_path)

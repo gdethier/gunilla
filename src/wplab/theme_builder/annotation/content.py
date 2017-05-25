@@ -22,9 +22,9 @@ class OpenContent(OpenAnnotation):
     def open(self):
         self.context.set_current_output_file(self._content_file)
         self.context.write('<?php')
-        self.context.write('get_header();')
         if self._template_name:
             self._write_template_header()
+        self.context.write('get_header();')
         self.context.write('?>')
 
     def _write_template_header(self):

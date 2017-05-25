@@ -24,6 +24,9 @@ class OpenAnnotation(Annotation):
     def is_open(self):
         return True
 
+    def is_empty(self):
+        return False
+
     @property
     def name(self):
         raise Exception("OpenAnnotation subclass must define name property")
@@ -48,6 +51,9 @@ class CloseAnnotation(Annotation):
     def is_open(self):
         return False
 
+    def is_empty(self):
+        return False
+
     @property
     def name(self):
         return '/' + self.closing
@@ -63,3 +69,12 @@ class CloseAnnotation(Annotation):
 
     def consume(self, line):
         raise Exception("A close annotation cannot consume anything")
+
+
+class EmptyAnnotation(Annotation):
+
+    def is_open(self):
+        return False
+
+    def is_empty(self):
+        return True

@@ -7,7 +7,7 @@ HOSTS_FILE=/etc/hosts
 
 function usage()
 {
-    echo "Usage: wplab ACTION where ACTION=[init|start|stop|register_host|deregister_host|reregister_host|clear|install|uninstall|build_theme]"
+    echo "Usage: wplab ACTION where ACTION=[init|start|stop|register_host|deregister_host|reregister_host|clear|install|uninstall|build_themes]"
 }
 
 function wp_howto()
@@ -333,9 +333,9 @@ function uninstall()
     fi
 }
 
-function build_theme()
+function build_themes()
 {
-    wplab-builder prototypes/$1/config
+    wplab-builder .
 }
 
 load_config || exit 1
@@ -378,8 +378,8 @@ case $ACTION in
         uninstall
         exit $?
         ;;
-    build_theme)
-        build_theme $2
+    build_themes)
+        build_themes $2
         exit $?
         ;;
     *)

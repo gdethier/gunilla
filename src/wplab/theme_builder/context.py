@@ -1,4 +1,6 @@
 import os
+from wplab.theme_builder.processor.end_of_line_fixer import EndOfLineFixer
+from wplab.theme_builder.processor.link_processor import LinkProcessor
 
 
 class Context(object):
@@ -6,6 +8,12 @@ class Context(object):
     def __init__(self, config):
         self._config = config
         self._output_file = None
+        self._init_processor_chain()
+
+    def _init_processor_chain(self):
+        self._processor_chain = []
+        self._processor_chain.append(LinkProcessor())
+        self._processor_chain.append(EndOfLineFixer())
 
     def set_current_output_file(self, name):
         if self._output_file:
@@ -17,9 +25,14 @@ class Context(object):
     def write(self, line):
         if self._output_file is None:
             raise Exception("No open output file")
-        self._output_file.write(line)
-        if not line.endswith('\n'):
-            self._output_file.write('\n')
+        self._output_file.write(self._apply_processor_chain(line))
+
+    def _apply_processor_chain(self, line):
+        for processor in self._processor_chain:
+            line = processor.process(line)
+            if line is None:
+                raise Exception("Processor {} returned None".format(processor))
+        return line
 
     def close_current_output_file(self):
         self._output_file.close()
