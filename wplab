@@ -7,7 +7,7 @@ HOSTS_FILE=/etc/hosts
 
 function usage()
 {
-    echo "Usage: wplab ACTION where ACTION=[init|start|stop|register_host|deregister_host|reregister_host|clear|install|uninstall|build_themes]"
+    echo "Usage: wplab ACTION where ACTION=[init|start|stop|register_host|deregister_host|reregister_host|clear|install|uninstall|build_themes|enable_multisite|complete_multisite]"
 }
 
 function wp_howto()
@@ -338,6 +338,48 @@ function build_themes()
     wplab-builder .
 }
 
+function enable_multisite()
+{
+    fetch_wp_container_id
+    if [[ "$WP_CONTAINER_ID" == "" ]]
+    then
+        echo "This WP project must first be started"
+        wp_howto
+        return 1
+    fi
+
+    SCRIPT=/tmp/enable_multisite.sh
+    cat > $SCRIPT << EOM
+# Below command inspired by https://github.com/docker-library/wordpress/issues/195#issuecomment-271382403
+sed -r -e 's/\r$//' /var/www/html/wp-config.php | awk '/^\/\*.*stop editing.*\*\/$/ { print("define( \"WP_ALLOW_MULTISITE\", true );") } { print }' > temp.php
+chown --reference /var/www/html/wp-config.php temp.php
+mv temp.php /var/www/html/wp-config.php
+EOM
+
+    docker cp $SCRIPT $WP_CONTAINER_ID:$SCRIPT
+    docker exec $WP_CONTAINER_ID chmod a+rx $SCRIPT
+    docker exec $WP_CONTAINER_ID /bin/sh -c $SCRIPT
+}
+
+function complete_multisite()
+{
+    fetch_wp_container_id
+    if [[ "$WP_CONTAINER_ID" == "" ]]
+    then
+        echo "This WP project must first be started"
+        wp_howto
+        return 1
+    fi
+
+    docker cp $WP_CONTAINER_ID:/var/www/html/wp-config.php /tmp/wp-config.php
+    vim /tmp/wp-config.php
+    docker cp /tmp/wp-config.php $WP_CONTAINER_ID:/var/www/html/wp-config.php
+
+    docker cp $WP_CONTAINER_ID:/var/www/html/.htaccess /tmp/.htaccess
+    vim /tmp/.htaccess
+    docker cp /tmp/.htaccess $WP_CONTAINER_ID:/var/www/html/.htaccess
+}
+
 load_config || exit 1
 
 ACTION=$1
@@ -382,9 +424,16 @@ case $ACTION in
         build_themes $2
         exit $?
         ;;
+    enable_multisite)
+        enable_multisite
+        exit $?
+        ;;
+    complete_multisite)
+        complete_multisite
+        exit $?
+        ;;
     *)
         usage
         exit 1
         ;;
 esac
-
