@@ -1,8 +1,8 @@
-from wplab.theme_builder.annotation import OpenAnnotation, CloseAnnotation, add_annotation
+from gunilla.theme_builder.annotation import OpenAnnotation, CloseAnnotation, add_annotation
 
-NAME = 'footer'
+NAME = 'header'
 
-class OpenFooter(OpenAnnotation):
+class OpenHeader(OpenAnnotation):
 
     def __init__(self, params):
         if len(params) > 0:
@@ -13,7 +13,7 @@ class OpenFooter(OpenAnnotation):
         return NAME
 
     def open(self):
-        self.context.set_current_output_file('footer.php')
+        self.context.set_current_output_file('header.php')
 
     def consume(self, line):
         self.context.write(line)
@@ -22,12 +22,12 @@ class OpenFooter(OpenAnnotation):
         self.context.close_current_output_file()
 
 
-class CloseFooter(CloseAnnotation):
+class CloseHeader(CloseAnnotation):
 
     @property
     def closing(self):
         return NAME
 
 def register():
-    add_annotation(NAME, OpenFooter)
-    add_annotation('/' + NAME, CloseFooter)
+    add_annotation(NAME, OpenHeader)
+    add_annotation('/' + NAME, CloseHeader)

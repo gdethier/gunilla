@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from wplab.theme_builder.parser import HtmlParser
+from gunilla.theme_builder.parser import HtmlParser
 
 
 class ThemeBuilder(object):

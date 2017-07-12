@@ -5,14 +5,14 @@ import sys
 sys.path.append('src');
 
 setup(
-    name='wplab-theme-builder',
+    name='gunilla',
 
     version='0.1.0.dev1',
 
-    description='WPLab theme builder',
-    long_description='WPLab theme builder',
+    description='Gunilla',
+    long_description='Gunilla',
 
-    url='https://github.com/gdethier',
+    url='https://github.com/gdethier/gunilla',
 
     author='Gerard Dethier',
     author_email='g.dethier@gmail.com',
@@ -29,7 +29,7 @@ setup(
         'Programming Language :: Python :: 2.7'
     ],
 
-    keywords='wordpress themes',
+    keywords='wordpress',
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
@@ -48,7 +48,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'wplab-builder=wplab.theme_builder:main',
+            'gunilla-theme-builder=gunilla.theme_builder:main',
         ],
     },
 )

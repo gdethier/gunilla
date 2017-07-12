@@ -1,17 +1,17 @@
-from wplab.theme_builder.annotation import get_annotation
-from wplab.theme_builder.annotation.content import register as register_content
-from wplab.theme_builder.annotation.descriptor import AnnotationDescriptor
-from wplab.theme_builder.annotation.footer import register as register_footer
-from wplab.theme_builder.annotation.header import register as register_header
-from wplab.theme_builder.annotation.include import register as register_include
-from wplab.theme_builder.annotation.replace import register as register_replace
+from gunilla.theme_builder.annotation import get_annotation
+from gunilla.theme_builder.annotation.content import register as register_content
+from gunilla.theme_builder.annotation.descriptor import AnnotationDescriptor
+from gunilla.theme_builder.annotation.footer import register as register_footer
+from gunilla.theme_builder.annotation.header import register as register_header
+from gunilla.theme_builder.annotation.include import register as register_include
+from gunilla.theme_builder.annotation.replace import register as register_replace
 
-from wplab.theme_builder.annotation.replace_body import register as register_replace_body
-from wplab.theme_builder.annotation.replace_charset import register as register_replace_charset
-from wplab.theme_builder.annotation.replace_html import register as register_replace_html
-from wplab.theme_builder.annotation.wp_footer import register as register_wp_footer
-from wplab.theme_builder.annotation.wp_head import register as register_wp_head
-from wplab.theme_builder.context import Context
+from gunilla.theme_builder.annotation.replace_body import register as register_replace_body
+from gunilla.theme_builder.annotation.replace_charset import register as register_replace_charset
+from gunilla.theme_builder.annotation.replace_html import register as register_replace_html
+from gunilla.theme_builder.annotation.wp_footer import register as register_wp_footer
+from gunilla.theme_builder.annotation.wp_head import register as register_wp_head
+from gunilla.theme_builder.context import Context
 
 
 register_content()

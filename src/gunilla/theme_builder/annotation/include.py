@@ -1,4 +1,4 @@
-from wplab.theme_builder.annotation import EmptyAnnotation, add_annotation
+from gunilla.theme_builder.annotation import EmptyAnnotation, add_annotation
 
 NAME = 'include'
 

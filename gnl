@@ -1,16 +1,16 @@
 #!/bin/bash
 
-CONFIG_FILE=wplab_config.sh
-WPLAB_DIR_NAME=wplab
+CONFIG_FILE=gunilla.sh
+GUNILLA_DIR_NAME=gunilla
 DOCKER_COMPOSE_FILE=docker-compose.yml
 HOSTS_FILE=/etc/hosts
 
 function usage()
 {
-    echo "Usage: wplab ACTION where ACTION=[init|start|stop|register_host|deregister_host|reregister_host|clear|install|uninstall|build_themes|enable_multisite|complete_multisite]"
+    echo "Usage: gnl ACTION where ACTION=[init|start|stop|register_host|deregister_host|reregister_host|clear|install|uninstall|build_themes|enable_multisite|complete_multisite]"
 }
 
-function wp_howto()
+function howto()
 {
     fetch_wp_ip
     echo "Connect to WP via:"
@@ -68,15 +68,15 @@ function wait_wp_container()
 
 function start_project()
 {
-    cd $WPLAB_DIR_NAME/$PROJECT_NAME
+    cd $GUNILLA_DIR_NAME/$PROJECT_NAME
     start_containers
     wait_wp_container
-    wp_howto
+    howto
 }
 
 function stop_project()
 {
-    cd $WPLAB_DIR_NAME/$PROJECT_NAME
+    cd $GUNILLA_DIR_NAME/$PROJECT_NAME
     stop_containers
 }
 
@@ -93,8 +93,8 @@ function init()
     mkdir -p themes
     mkdir -p plugins
 
-    mkdir -p $WPLAB_DIR_NAME/$PROJECT_NAME
-    cat > $WPLAB_DIR_NAME/$PROJECT_NAME/$DOCKER_COMPOSE_FILE << EOF
+    mkdir -p $GUNILLA_DIR_NAME/$PROJECT_NAME
+    cat > $GUNILLA_DIR_NAME/$PROJECT_NAME/$DOCKER_COMPOSE_FILE << EOF
 version: '2'
 
 services:
@@ -126,7 +126,7 @@ EOF
 
 function test_setup()
 {
-    if [ -d $WPLAB_DIR_NAME/$PROJECT_NAME -a -f $WPLAB_DIR_NAME/$PROJECT_NAME/$DOCKER_COMPOSE_FILE ]
+    if [ -d $GUNILLA_DIR_NAME/$PROJECT_NAME -a -f $GUNILLA_DIR_NAME/$PROJECT_NAME/$DOCKER_COMPOSE_FILE ]
     then
         return 0
     else
@@ -147,7 +147,7 @@ function start() {
     then
         echo "This WP project is already started"
         echo ""
-        wp_howto
+        howto
         return 1
     fi
 
@@ -184,7 +184,7 @@ function register_host()
     if [[ "$WP_CONTAINER_ID" == "" ]]
     then
         echo "This WP project must first be started"
-        wp_howto
+        howto
         return 1
     fi
 
@@ -271,11 +271,11 @@ function clear()
     done
 
     (
-        cd $WPLAB_DIR_NAME/$PROJECT_NAME
+        cd $GUNILLA_DIR_NAME/$PROJECT_NAME
         stop_containers
         remove_containers
     )
-    rm -rf $WPLAB_DIR_NAME
+    rm -rf $GUNILLA_DIR_NAME
 }
 
 function remove_containers()
@@ -289,7 +289,7 @@ function install()
     if [[ "$WP_CONTAINER_ID" == "" ]]
     then
         echo "This WP project must first be started"
-        wp_howto
+        howto
         return 1
     fi
 
@@ -312,7 +312,7 @@ function uninstall()
     if [[ "$WP_CONTAINER_ID" == "" ]]
     then
         echo "This WP project must first be started"
-        wp_howto
+        howto
         return 1
     fi
 
@@ -335,7 +335,7 @@ function uninstall()
 
 function build_themes()
 {
-    wplab-builder .
+    gunilla-theme-builder .
 }
 
 function enable_multisite()
@@ -344,7 +344,7 @@ function enable_multisite()
     if [[ "$WP_CONTAINER_ID" == "" ]]
     then
         echo "This WP project must first be started"
-        wp_howto
+        howto
         return 1
     fi
 
@@ -367,7 +367,7 @@ function complete_multisite()
     if [[ "$WP_CONTAINER_ID" == "" ]]
     then
         echo "This WP project must first be started"
-        wp_howto
+        howto
         return 1
     fi
 

@@ -1,4 +1,4 @@
-from wplab.theme_builder.processor import Processor
+from gunilla.theme_builder.processor import Processor
 
 
 class EndOfLineFixer(Processor):

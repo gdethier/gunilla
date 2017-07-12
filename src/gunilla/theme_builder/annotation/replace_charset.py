@@ -1,4 +1,4 @@
-from wplab.theme_builder.annotation import OpenAnnotation, CloseAnnotation, add_annotation
+from gunilla.theme_builder.annotation import OpenAnnotation, CloseAnnotation, add_annotation
 
 NAME = 'replace_charset'
 

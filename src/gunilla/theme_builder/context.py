@@ -1,6 +1,6 @@
 import os
-from wplab.theme_builder.processor.end_of_line_fixer import EndOfLineFixer
-from wplab.theme_builder.processor.link_processor import LinkProcessor
+from gunilla.theme_builder.processor.end_of_line_fixer import EndOfLineFixer
+from gunilla.theme_builder.processor.link_processor import LinkProcessor
 
 
 class Context(object):

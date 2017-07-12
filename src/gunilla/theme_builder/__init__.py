@@ -1,7 +1,7 @@
 import os
 import sys
-from wplab.theme_builder.builder import ThemeBuilder
-from wplab.theme_builder.config import ThemeBuilderConfig
+from gunilla.theme_builder.builder import ThemeBuilder
+from gunilla.theme_builder.config import ThemeBuilderConfig
 
 
 def main():

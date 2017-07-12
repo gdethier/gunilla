@@ -1,5 +1,5 @@
 import unittest
-from wplab.theme_builder.processor.link_processor import LinkProcessor
+from gunilla.theme_builder.processor.link_processor import LinkProcessor
 
 class LinkProcessorTest(unittest.TestCase):
 
