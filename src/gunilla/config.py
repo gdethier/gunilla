@@ -1,3 +1,4 @@
+import json
 _config = None
 
 class Config(object):
@@ -7,7 +8,7 @@ class Config(object):
 
     @property
     def project_name(self):
-        return self._data["PROJECT_NAME"]
+        return self._data["name"]
 
     def composer_dir_name(self):
         return "gunilla/" + self.project_name
@@ -20,13 +21,8 @@ class Config(object):
 
 
 def _read_config():
-    data = {}
-    with open('gunilla.sh') as f:
-        line = f.readline()
-        while line:
-            name, value = line.split('=')
-            data[name] = value.strip(' \n\t"')
-            line = f.readline()
+    with open('gunilla.json') as f:
+        data = json.load(f)
     return Config(data)
 
 
