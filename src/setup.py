@@ -33,7 +33,9 @@ setup(
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
-    install_requires=[],
+    install_requires=[
+        'docker'
+    ],
 
     extras_require={
         'dev': [],
@@ -48,7 +50,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'gunilla-theme-builder=gunilla.theme_builder:main',
+            'gnl=gunilla:main',
         ],
     },
 )

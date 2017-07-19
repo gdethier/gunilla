@@ -1,20 +1,18 @@
-gunilla_exec = gnl
-install_dir = /usr/local/bin
-gunilla_dist = dist/gunilla-0.1.0.dev1.tar.gz
+name=gunilla
+version=0.1.0.dev1
+dist_file = dist/$(name)-$(version).tar.gz
 
-all : $(gunilla_exec) $(gunilla_dist)
+all : $(dist_file)
 
-$(gunilla_dist) :
+build :
 	cd src; python setup.py sdist --dist-dir=../dist
 
-install : $(gunilla_exec) $(gunilla_dist)
-	cp $(gunilla_exec) $(install_dir)/
-	chmod a+rx $(install_dir)/$(gunilla_exec)
-	cd src; python setup.py install
-	cd src; rm -rf build/ dist/ *.egg-info
-
-uninstall :
-	rm $(install_dir)/$(gunilla_exec)
+install : build
+	pip install $(dist_file) --upgrade
+	rm -rf src/build/ src/dist/ src/*.egg-info
 
 clean :
 	rm -rf dist
+
+uninstall :
+	pip uninstall $(name)
