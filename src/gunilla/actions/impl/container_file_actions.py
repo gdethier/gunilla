@@ -28,7 +28,6 @@ class ContainerFileAction(object):
     def docker_exec(self, args):
         command_line = ['docker']
         command_line.extend(args)
-        print(command_line)
         subprocess.call(command_line)
 
     def run_on_container(self, local_script, remote_script):
