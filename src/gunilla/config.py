@@ -40,11 +40,15 @@ class Dependencies(DictWrapper):
 
     @property
     def plugins(self):
-        return ComponentDependencies(self._data["plugins"])
+        if not 'plugins' in self._data:
+            return ComponentDependencies({})
+        return ComponentDependencies(self._data['plugins'])
 
     @property
     def themes(self):
-        return ComponentDependencies(self._data["themes"])
+        if not 'themes' in self._data:
+            return ComponentDependencies({})
+        return ComponentDependencies(self._data['themes'])
 
 
 class ComponentDependencies(DictWrapper):
