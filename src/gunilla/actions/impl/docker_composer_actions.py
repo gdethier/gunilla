@@ -1,17 +1,14 @@
-from gunilla.config import instance
 from gunilla.docker import wait_wordpress_container, print_howto
-import os
 import subprocess
+
+from gunilla.workspace import instance
 
 
 class DockerComposerAction(object):
 
     def run(self):
-        self.change_to_composer_dir()
+        instance().change_to_composer_dir()
         self.run_in_composer_dir()
-
-    def change_to_composer_dir(self):
-        os.chdir(instance().composer_dir_name())
 
     def run_composer(self, args):
         command_line = [ 'docker-compose' ]
