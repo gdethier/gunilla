@@ -1,4 +1,5 @@
 from gunilla.config import instance as config_instance
+from gunilla.environment import instance as env_instance
 from gunilla.exceptions import WorkspaceException
 import os
 
@@ -24,7 +25,7 @@ services:
      image: wordpress:latest
      ports:
        - "8000:80"
-     restart: always
+     restart: "no"
      environment:
        WORDPRESS_DB_HOST: db:3306
        WORDPRESS_DB_PASSWORD: wordpress
@@ -49,15 +50,21 @@ class Workspace(object):
         return os.path.join(self._dir, "gunilla", config_instance().project_name)
 
     def init(self):
-        if self.is_configured():
+        if self.is_configured() and not env_instance().force:
             raise WorkspaceException("Project seems to be already set up")
 
         print("Initializing project {}".format(config_instance().project_name))
 
-        os.mkdir("prototypes")
-        os.mkdir("themes")
-        os.mkdir("plugins")
-        os.makedirs(self._composer_dir_name())
+        if not os.path.exists("prototypes"):
+            os.mkdir("prototypes")
+        if not os.path.exists("themes"):
+            os.mkdir("themes")
+        if not os.path.exists("plugins"):
+            os.mkdir("plugins")
+
+        if not os.path.exists(self._composer_dir_name()):
+            os.makedirs(self._composer_dir_name())
+
         self._write_composer_file()
 
     def _write_composer_file(self):

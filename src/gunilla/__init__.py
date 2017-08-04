@@ -11,9 +11,11 @@ def main():
     parser = argparse.ArgumentParser(description='WordPress theme and plug-in development tool')
     parser.add_argument('actions', nargs=1, help='An action to execute (one of init, start, stop, register_host, deregister_host, reregister_host, clear, install, uninstall, build_themes, enable_multisite, complete_multisite)')
     parser.add_argument('--debug', dest='debug', action='store_true', help="Enables debug mode")
+    parser.add_argument('--force', dest='force', action='store_true', help="Forces execution of some operations")
 
     args = parser.parse_args()
     instance().enable_debug(args.debug)
+    instance().enable_force(args.force)
 
     try:
         action = get_action(args.actions[0])
