@@ -59,9 +59,12 @@ class Dependency(DictWrapper):
 
 
 def _read_config():
-    with open('gunilla.json') as f:
+    with open(config_file_path) as f:
         data = json.load(f)
     return Config(data)
+
+
+config_file_path = 'gunilla.json'
 
 
 def instance():
@@ -69,3 +72,10 @@ def instance():
     if not _config:
         _config = _read_config()
     return _config
+
+
+def init_config_file():
+    config_map = {}
+    config_map["name"] = raw_input("Project name: ")
+    with open(config_file_path, 'w') as f:
+        json.dump(config_map, f, indent=4)
