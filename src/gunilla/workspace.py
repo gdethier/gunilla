@@ -23,8 +23,6 @@ services:
      depends_on:
        - db
      image: wordpress:latest
-     ports:
-       - "8000:80"
      restart: "no"
      environment:
        WORDPRESS_DB_HOST: db:3306
