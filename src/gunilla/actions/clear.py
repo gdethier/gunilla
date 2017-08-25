@@ -1,9 +1,10 @@
-from gunilla.actions.validations import is_configured
-from gunilla.exceptions import ActionException
+from gunilla import workspace
 from gunilla.actions.impl.docker_composer_actions import Clear
+from gunilla.exceptions import ActionException
+
 
 def run():
-    if not is_configured():
+    if not workspace.instance().is_configured():
         raise ActionException("Project was not already set up")
 
     print("!!! WARNING !!!")
