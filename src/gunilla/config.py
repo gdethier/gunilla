@@ -20,6 +20,10 @@ class Config(object):
     def dependencies(self):
         return Dependencies(self._data["dependencies"])
 
+    @property
+    def prototypes(self):
+        return Prototypes(self._data["prototypes"])
+
 
 class DictWrapper(object):
 
@@ -79,6 +83,25 @@ class Dependency(DictWrapper):
     @property
     def version(self):
         return self._data["version"]
+
+
+class Prototypes(DictWrapper):
+    def __getitem__(self, key):
+        return Prototype(self._data[key])
+
+
+class Prototype(DictWrapper):
+
+    @property
+    def path(self):
+        return self._data['path']
+
+    @property
+    def build_cmd(self):
+        if 'build_cmd' in self._data:
+            return self._data['build_cmd']
+        else:
+            return ''
 
 
 def _read_config():

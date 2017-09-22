@@ -83,3 +83,5 @@ class HtmlParser(object):
             line = line[4:-3].strip()
             if line.startswith('wplab:'):
                 return line[6:]
+            elif line.startswith('gnl:'):
+                return line[4:]

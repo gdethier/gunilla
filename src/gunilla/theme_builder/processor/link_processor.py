@@ -1,11 +1,10 @@
-import re
-
 from gunilla.theme_builder.processor import Processor
+import re
 
 
 class LinkProcessor(Processor):
 
-    URL_PATTERN = '[\<\?>a-zA-Z0-9-/\. ]*'
+    URL_PATTERN = '[\<\?>a-zA-Z0-9-_/\. ]*'
 
     URL_REGEX = re.compile(URL_PATTERN)
 

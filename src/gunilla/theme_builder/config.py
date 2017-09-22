@@ -1,21 +1,13 @@
-from ConfigParser import ConfigParser
-
 class ThemeBuilderConfig(object):
 
-    SECTION = 'Theme Builder'
-
-    def __init__(self, path):
-        self._config = ConfigParser()
-        self._config.read(path)
+    def __init__(self, prototype_path, theme_path):
+        self._prototype_path = prototype_path
+        self._theme_path = theme_path
 
     @property
     def prototype_path(self):
-        return self._config.get(self.SECTION, 'prototype_path')
+        return self._prototype_path
 
     @property
     def theme_path(self):
-        return self._config.get(self.SECTION, 'theme_path')
-
-    @theme_path.setter
-    def theme_path(self, theme_path):
-        self._config.set(self.SECTION, 'theme_path', theme_path)
+        return self._theme_path
