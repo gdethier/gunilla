@@ -1,3 +1,6 @@
+class ConfigException(Exception):
+    pass
+
 class ActionException(Exception):
     pass
 

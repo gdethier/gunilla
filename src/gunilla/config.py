@@ -1,4 +1,7 @@
+from gunilla.exceptions import ConfigException
 import json
+
+
 _config = None
 
 class Config(object):
@@ -51,7 +54,27 @@ class ComponentDependencies(DictWrapper):
         return Dependency(self._data[key])
 
 
+class DependencyType(object):
+    DOWNLOAD = "download"
+    FOLDER = "folder"
+
+
 class Dependency(DictWrapper):
+
+    @property
+    def type(self):
+        if "type" in self._data:
+            return self._wrap_type(self._data["type"])
+        else:
+            return DependencyType.DOWNLOAD
+
+    def _wrap_type(self, type_string):
+        if type_string == DependencyType.DOWNLOAD:
+            return DependencyType.DOWNLOAD
+        elif type_string == DependencyType.FOLDER:
+            return DependencyType.FOLDER
+        else:
+            raise ConfigException("Unsupported dependency type " + type_string)
 
     @property
     def version(self):
