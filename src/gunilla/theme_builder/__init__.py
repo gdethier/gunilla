@@ -27,7 +27,7 @@ def run_builder(root_path):
         build_cmd = prototype_config.build_cmd
         if build_cmd:
             print("Building prototype {}".format(prototype_name))
-            subprocess.call(["bash", "-c", build_cmd])
+            subprocess.call(build_cmd, shell=True)
 
         print("Building theme {}".format(prototype_name))
         prototype_path = os.path.join(prototype_root_path, prototype_config.path)

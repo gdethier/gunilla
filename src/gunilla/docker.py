@@ -23,7 +23,6 @@ def wait_wordpress_container():
 
 def print_howto():
     print("Connect to WP via:")
-    print("- http://localhost:8000/")
     print("- http://{}/".format(get_wordpress_container_ip()))
     print("- http://{}/ (you need first to run 'register_host')".format(instance().project_name))
     print("")
