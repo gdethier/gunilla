@@ -7,7 +7,7 @@ sys.path.append('src');
 setup(
     name='gunilla',
 
-    version='0.1.0.dev1',
+    version='0.2.0.dev1',
 
     description='Gunilla',
     long_description='Gunilla',

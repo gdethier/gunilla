@@ -1,5 +1,5 @@
 name=gunilla
-version=0.1.0.dev1
+version=0.2.0.dev1
 dist_file = dist/$(name)-$(version).tar.gz
 
 all : $(dist_file)
