@@ -18,17 +18,28 @@ class Config(object):
 
     @property
     def dependencies(self):
-        return Dependencies(self._data["dependencies"])
+        return Dependencies(self._get_and_create("dependencies", {}))
+
+    def _get_and_create(self, key, initial_value):
+        value = self._data.get(key)
+        if value is None:
+            value = initial_value
+            self._data[key] = value
+        return value
 
     @property
     def prototypes(self):
-        return Prototypes(self._data["prototypes"])
+        return Prototypes(self._get_and_create("prototypes", {}))
+
+    def write(self):
+        with open(config_file_path, 'w') as f:
+            json.dump(self._data, f, indent=4)
 
 
 class DictWrapper(object):
 
-    def __init__(self, data):
-        self._data = data
+    def __init__(self, data = None):
+        self._data = data if data is not None else {}
 
     def __iter__(self):
         return iter(self._data)
@@ -88,6 +99,9 @@ class Dependency(DictWrapper):
 class Prototypes(DictWrapper):
     def __getitem__(self, key):
         return Prototype(self._data[key])
+
+    def add(self, name, prototype):
+        self._data[name] = prototype._data
 
 
 class Prototype(DictWrapper):

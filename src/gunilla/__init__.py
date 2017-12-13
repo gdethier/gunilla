@@ -12,10 +12,14 @@ def main():
     parser.add_argument('actions', nargs=1, help='An action to execute (one of init, start, stop, register_host, deregister_host, reregister_host, clear, install, uninstall, build_themes, enable_multisite, complete_multisite)')
     parser.add_argument('--debug', dest='debug', action='store_true', help="Enables debug mode")
     parser.add_argument('--force', dest='force', action='store_true', help="Forces execution of some operations")
+    parser.add_argument('--prototype_name', dest='prototype_name', help="Prototype name")
+    parser.add_argument('--prototype_template_path', dest='prototype_template_path', help="Path to prototype template")
 
     args = parser.parse_args()
-    instance().enable_debug(args.debug)
-    instance().enable_force(args.force)
+    instance().debug = args.debug
+    instance().force = args.force
+    instance().prototype_name = args.prototype_name
+    instance().prototype_template_path = args.prototype_template_path
 
     try:
         action = get_action(args.actions[0])

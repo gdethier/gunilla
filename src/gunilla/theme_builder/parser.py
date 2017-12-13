@@ -5,12 +5,12 @@ from gunilla.theme_builder.annotation.footer import register as register_footer
 from gunilla.theme_builder.annotation.header import register as register_header
 from gunilla.theme_builder.annotation.include import register as register_include
 from gunilla.theme_builder.annotation.replace import register as register_replace
-
 from gunilla.theme_builder.annotation.replace_body import register as register_replace_body
 from gunilla.theme_builder.annotation.replace_charset import register as register_replace_charset
 from gunilla.theme_builder.annotation.replace_html import register as register_replace_html
 from gunilla.theme_builder.annotation.wp_footer import register as register_wp_footer
 from gunilla.theme_builder.annotation.wp_head import register as register_wp_head
+from gunilla.theme_builder.annotation.remove import register as register_remove
 from gunilla.theme_builder.context import Context
 
 
@@ -24,6 +24,7 @@ register_replace_charset()
 register_replace_html()
 register_wp_footer()
 register_wp_head()
+register_remove()
 
 
 class HtmlParser(object):
