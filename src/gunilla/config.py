@@ -18,7 +18,10 @@ class Config(object):
         self._data["name"] = name
 
     def wordpress_container_name(self):
-        return self.project_name + "_wordpress_1"
+        return self.container_base_name() + "_wordpress_1"
+
+    def container_base_name(self):
+        return self.project_name.replace('-', '')
 
     @property
     def dependencies(self):

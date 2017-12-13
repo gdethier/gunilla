@@ -11,7 +11,7 @@ def get_wordpress_container():
 
 def get_wordpress_container_ip():
     container = get_wordpress_container()
-    return container.attrs['NetworkSettings']['Networks']['{}_default'.format(instance().project_name)]['IPAddress']
+    return container.attrs['NetworkSettings']['Networks']['{}_default'.format(instance().container_base_name())]['IPAddress']
 
 def wait_wordpress_container():
     while True:
