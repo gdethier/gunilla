@@ -6,12 +6,16 @@ _config = None
 
 class Config(object):
 
-    def __init__(self, data):
-        self._data = data
+    def __init__(self):
+        self._data = {}
 
     @property
     def project_name(self):
         return self._data["name"]
+
+    @project_name.setter
+    def project_name(self, name):
+        self._data["name"] = name
 
     def wordpress_container_name(self):
         return self.project_name + "_wordpress_1"
@@ -30,6 +34,10 @@ class Config(object):
     @property
     def prototypes(self):
         return Prototypes(self._get_and_create("prototypes", {}))
+
+    def read(self):
+        with open(config_file_path, 'r') as f:
+            self._data = json.load(f)
 
     def write(self):
         with open(config_file_path, 'w') as f:
@@ -119,9 +127,9 @@ class Prototype(DictWrapper):
 
 
 def _read_config():
-    with open(config_file_path) as f:
-        data = json.load(f)
-    return Config(data)
+    config = Config()
+    config.read()
+    return config
 
 
 config_file_path = 'gunilla.json'

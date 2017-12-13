@@ -14,12 +14,14 @@ def main():
     parser.add_argument('--force', dest='force', action='store_true', help="Forces execution of some operations")
     parser.add_argument('--prototype_name', dest='prototype_name', help="Prototype name")
     parser.add_argument('--prototype_template_path', dest='prototype_template_path', help="Path to prototype template")
+    parser.add_argument('--project_template_path', dest='project_template_path', help="Path to project template")
 
     args = parser.parse_args()
     instance().debug = args.debug
     instance().force = args.force
     instance().prototype_name = args.prototype_name
     instance().prototype_template_path = args.prototype_template_path
+    instance().project_template_path = args.project_template_path
 
     try:
         action = get_action(args.actions[0])
