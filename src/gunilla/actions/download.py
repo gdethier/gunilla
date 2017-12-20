@@ -1,11 +1,13 @@
 from gunilla.config import instance as config_instance, DependencyType
 from gunilla.environment import instance as env_instance
 from gunilla.exceptions import ActionException
+from gunilla.repository import instance as repo_instance
 import json
 import os
 import requests
 import shutil
 from zipfile import ZipFile
+import tempfile
 
 
 def run():
@@ -55,16 +57,22 @@ def download_extract(slug, dependency, descriptor, folder):
             print(version)
         raise ActionException("Provided version is not available")
 
-    download_request = requests.get(descriptor['versions'][version])
-    shutil.rmtree('{}/{}'.format(folder, slug), True)
-    zip_file_name = '{}/{}.zip'.format(folder, slug)
-    with open(zip_file_name, 'w') as fd:
-        for chunk in download_request.iter_content(chunk_size=128):
-            fd.write(chunk)
+    repository = repo_instance()
+    path_segments = [folder, slug, version, '%s-%s.zip' % (slug, version)]
+    if not repository.exists(path_segments):
+        download_request = requests.get(descriptor['versions'][version])
+        file_handle, path = tempfile.mkstemp()
+        with os.fdopen(file_handle, 'w') as file_object:
+            for chunk in download_request.iter_content(chunk_size=128):
+                file_object.write(chunk)
+        repository.add(path_segments, path)
+        os.remove(path)
+    else:
+        print("Found in local repository")
 
-    zip_file = ZipFile(zip_file_name)
-    zip_file.extractall('{}'.format(folder))
-    os.remove(zip_file_name)
+    with repository.open(path_segments) as f:
+        zip_file = ZipFile(f)
+        zip_file.extractall('{}'.format(folder))
 
 def copy_folder_dependency(dependencies, slug, folder):
     dependency = dependencies[slug]
