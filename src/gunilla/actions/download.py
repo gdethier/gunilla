@@ -9,6 +9,7 @@ import shutil
 from zipfile import ZipFile
 import tempfile
 
+repository = repo_instance()
 
 def run():
     plugin_dependencies = config_instance().dependencies.plugins
@@ -34,6 +35,12 @@ def download_dependency(dependencies, slug, url_template, folder):
     version = dependency.version
     print("Downloading plugin '{}' at version '{}'".format(slug, version))
 
+    if version != 'latest':
+        path_segments = [folder, slug, version, '%s-%s.zip' % (slug, version)]
+        if repository.exists(path_segments):
+            extract(path_segments, folder)
+            return
+
     descriptor = json.loads(requests.get(url_template.format(slug)).text)
     if env_instance().debug:
         print("Downloaded descriptor: %s" % json.dumps(descriptor, indent=2))
@@ -57,7 +64,6 @@ def download_extract(slug, dependency, descriptor, folder):
             print(version)
         raise ActionException("Provided version is not available")
 
-    repository = repo_instance()
     path_segments = [folder, slug, version, '%s-%s.zip' % (slug, version)]
     if not repository.exists(path_segments):
         download_request = requests.get(descriptor['versions'][version])
@@ -70,6 +76,9 @@ def download_extract(slug, dependency, descriptor, folder):
     else:
         print("Found in local repository")
 
+    extract(path_segments, folder)
+
+def extract(path_segments, folder):
     with repository.open(path_segments) as f:
         zip_file = ZipFile(f)
         zip_file.extractall('{}'.format(folder))
