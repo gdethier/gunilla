@@ -20,8 +20,11 @@ def main():
     instance().debug = args.debug
     instance().force = args.force
     instance().prototype_name = args.prototype_name
-    instance().prototype_template_path = args.prototype_template_path
-    instance().project_template_path = args.project_template_path
+
+    if args.prototype_template_path:
+        instance().prototype_template_path = args.prototype_template_path
+    if args.project_template_path:
+        instance().project_template_path = args.project_template_path
 
     try:
         action = get_action(args.actions[0])

@@ -9,6 +9,9 @@ def run():
     print("Adding prototype %s" % prototype_name)
 
     prototype_template_path = environment_instance().prototype_template_path
+    if not prototype_template_path:
+        raise Exception("No prototype template path provided")
+
     prototype_template = TemplateFolder(prototype_template_path)
     prototype_path = os.path.join('prototypes', prototype_name)
     prototype_template.copy_to(prototype_path)
