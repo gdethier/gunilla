@@ -1,9 +1,12 @@
+import logging
+import os
+
 from gunilla.config import instance as config_instance
 from gunilla.environment import instance as env_instance
 from gunilla.exceptions import WorkspaceException
-import os
 from gunilla.actions.impl.template_folder import TemplateFolder
 
+logger = logging.getLogger(__name__)
 
 COMPOSER_FILE_CONTENT = \
 """
@@ -58,6 +61,7 @@ class Workspace(object):
         if project_template_path is None:
             self._create_default_dirs()
         else:
+            logger.debug("Reading project template from {}".format(project_template_path))
             project_template = TemplateFolder(project_template_path)
             project_template.copy_to(self._dir)
             self._fix_project_config()
@@ -68,12 +72,15 @@ class Workspace(object):
         self._write_composer_file()
 
     def _create_default_dirs(self):
-        if not os.path.exists("prototypes"):
-            os.mkdir("prototypes")
-        if not os.path.exists("themes"):
-            os.mkdir("themes")
-        if not os.path.exists("plugins"):
-            os.mkdir("plugins")
+        prototypes_path = os.path.join(self._dir, "prototypes")
+        if not os.path.exists(prototypes_path):
+            os.mkdir(prototypes_path)
+        themes_path = os.path.join(self._dir, "themes")
+        if not os.path.exists(themes_path):
+            os.mkdir(themes_path)
+        plugins_path = os.path.join(self._dir, "plugins")
+        if not os.path.exists(plugins_path):
+            os.mkdir(plugins_path)
 
     def _fix_project_config(self):
         project_name = config_instance().project_name
@@ -88,11 +95,20 @@ class Workspace(object):
     def change_to_composer_dir(self):
         os.chdir(self._composer_dir_name())
 
+    def prototype_path(self, prototype_name):
+        return os.path.join(self._dir, "prototypes", prototype_name)
+
 
 _workspace_instance = None
+
 
 def instance():
     global _workspace_instance
     if not _workspace_instance:
-        _workspace_instance = Workspace(os.getcwd())
+        if env_instance().workspace:
+            logger.debug("Using workspace %s" % env_instance().workspace)
+            _workspace_instance = Workspace(env_instance().workspace)
+        else:
+            logger.debug("Using default workspace (current directory)")
+            _workspace_instance = Workspace(os.getcwd())
     return _workspace_instance
