@@ -2,24 +2,24 @@ import os
 import json
 import logging
 
-from gunilla.config import instance as config_instance, Prototype
-from gunilla.environment import instance as environment_instance
+from gunilla.config import Prototype
+from gunilla.environment import environment
 from gunilla.actions.impl.template_folder import TemplateFolder
-from gunilla.workspace import instance as workspace_instance
+from gunilla.workspace import workspace
 
 logger = logging.getLogger(__name__)
 
 def run():
-    prototype_name = environment_instance().prototype_name
+    prototype_name = environment().prototype_name
     print("Adding prototype %s" % prototype_name)
 
-    prototype_template_path = environment_instance().prototype_template_path
+    prototype_template_path = environment().prototype_template_path
     if not prototype_template_path:
         raise Exception("No prototype template path provided")
 
     logger.debug("Reading prototype template from {}".format(prototype_template_path))
     prototype_template = TemplateFolder(prototype_template_path)
-    prototype_path = workspace_instance().prototype_path(prototype_name)
+    prototype_path = workspace().prototype_path(prototype_name)
     prototype_template.copy_to(prototype_path)
 
     prototype_data_path = os.path.join(prototype_template_path, 'gunilla-prototype.json')
@@ -31,5 +31,4 @@ def run():
     with open(prototype_data_path, 'r') as f:
         prototype_data = json.load(f)
         prototype = Prototype(prototype_data)
-        config_instance().prototypes.add(prototype_name, prototype)
-        config_instance().write()
+        workspace().add_prototype(prototype_name, prototype)

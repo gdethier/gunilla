@@ -1,7 +1,7 @@
-from gunilla.config import instance as config_instance
 from gunilla.exceptions import ActionException
 from gunilla.theme_builder.builder import ThemeBuilder
 from gunilla.theme_builder.config import ThemeBuilderConfig
+from gunilla.workspace import workspace
 import os
 import subprocess
 import sys
@@ -19,7 +19,7 @@ def run_builder(root_path):
         if not os.path.isdir(prototype_path):
             continue
 
-        gunilla_config = config_instance()
+        gunilla_config = workspace().config()
         prototype_config = gunilla_config.prototypes[prototype_name]
         prototype_root_path = os.path.join(prototypes_path, prototype_name)
         os.chdir(prototype_root_path)

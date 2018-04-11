@@ -1,6 +1,6 @@
-from gunilla.config import instance
 from gunilla.docker import get_wordpress_container_ip
 from gunilla.exceptions import ActionException
+from gunilla.workspace import workspace
 import shutil
 import time
 
@@ -14,7 +14,7 @@ class HostAction(object):
         with open(self.host_file) as f:
             line = f.readline()
             while line:
-                if instance().project_name in line:
+                if workspace().config().project_name in line:
                     return True
                 line = f.readline()
         return False
@@ -36,7 +36,7 @@ class HostAction(object):
         with open(temp_file, 'w') as f:
             with open(self.host_file) as host_file:
                 for line in host_file:
-                    if not instance().project_name in line:
+                    if not workspace().config().project_name in line:
                         f.write(line)
         shutil.move(temp_file, self.host_file)
 
@@ -48,7 +48,7 @@ class HostAction(object):
             with open(self.host_file) as host_file:
                 for line in host_file:
                     f.write(line)
-            f.write('{}\t{}\n'.format(ip_address, instance().project_name))
+            f.write('{}\t{}\n'.format(ip_address, workspace().config().project_name))
         shutil.move(temp_file, self.host_file)
 
 
@@ -56,7 +56,7 @@ class RegisterHost(HostAction):
 
     def _validate(self):
         if self.host_registered():
-            raise ActionException("Host '{}' is already registered".format(instance().project_name))
+            raise ActionException("Host '{}' is already registered".format(workspace().config().project_name))
 
     def _run_after_backup(self):
         ip_address = get_wordpress_container_ip()
@@ -67,7 +67,7 @@ class DeregisterHost(HostAction):
     
     def _validate(self):
         if not self.host_registered():
-            raise ActionException("Host '{}' was not registered".format(instance().project_name))
+            raise ActionException("Host '{}' was not registered".format(workspace().config().project_name))
 
     def _run_after_backup(self):
         self.deregister()
@@ -77,7 +77,7 @@ class ReregisterHost(HostAction):
 
     def _validate(self):
         if not self.host_registered():
-            raise ActionException("Host '{}' was not registered".format(instance().project_name))
+            raise ActionException("Host '{}' was not registered".format(workspace().config().project_name))
 
     def _run_after_backup(self):
         ip_address = get_wordpress_container_ip()

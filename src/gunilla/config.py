@@ -1,10 +1,6 @@
 from gunilla.exceptions import ConfigException
-from gunilla.environment import instance as environment
 import json
-import os
 
-
-_config = None
 
 class Config(object):
 
@@ -40,12 +36,12 @@ class Config(object):
     def prototypes(self):
         return Prototypes(self._get_and_create("prototypes", {}))
 
-    def read(self):
-        with open(config_file_path(), 'r') as f:
+    def read(self, path):
+        with open(path, 'r') as f:
             self._data = json.load(f)
 
-    def write(self):
-        with open(config_file_path(), 'w') as f:
+    def write(self, path):
+        with open(path, 'w') as f:
             json.dump(self._data, f, indent=4)
 
 
@@ -129,30 +125,3 @@ class Prototype(DictWrapper):
             return self._data['build_cmd']
         else:
             return ''
-
-
-def _read_config():
-    config = Config()
-    config.read()
-    return config
-
-
-def config_file_path():
-    if environment().workspace:
-        return os.path.join(environment().workspace, 'gunilla.json')
-    else:
-        return 'gunilla.json'
-
-
-def instance():
-    global _config
-    if not _config:
-        _config = _read_config()
-    return _config
-
-
-def init_config_file():
-    config_map = {}
-    config_map["name"] = raw_input("Project name: ")
-    with open(config_file_path(), 'w') as f:
-        json.dump(config_map, f, indent=4)

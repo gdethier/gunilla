@@ -1,10 +1,10 @@
-from gunilla import workspace
-from gunilla.actions.impl.docker_composer_actions import Clear
 from gunilla.exceptions import ActionException
+from gunilla.infra import infrastructure
+from gunilla.workspace import workspace
 
 
 def run():
-    if not workspace.instance().is_configured():
+    if not workspace().is_configured():
         raise ActionException("Project was not already set up")
 
     print("!!! WARNING !!!")
@@ -14,4 +14,4 @@ def run():
 
     answer = raw_input("Do you really want to clear the project? [Yes,No]")
     if answer == 'Yes':
-        Clear().run()
+        infrastructure().clear()

@@ -1,7 +1,8 @@
-from gunilla.config import instance as config_instance, DependencyType
-from gunilla.environment import instance as env_instance
+from gunilla.config import DependencyType
+from gunilla.environment import environment
 from gunilla.exceptions import ActionException
 from gunilla.repository import instance as repo_instance
+from gunilla.workspace import workspace
 import json
 import os
 import requests
@@ -12,10 +13,10 @@ import tempfile
 repository = repo_instance()
 
 def run():
-    plugin_dependencies = config_instance().dependencies.plugins
+    plugin_dependencies = workspace().config().dependencies.plugins
     copy_dependencies(plugin_dependencies, 'https://api.wordpress.org/plugins/info/1.0/{}.json', 'plugins')
 
-    theme_dependencies = config_instance().dependencies.themes
+    theme_dependencies = workspace().config().dependencies.themes
     copy_dependencies(theme_dependencies, 'https://api.wordpress.org/themes/info/1.1/?action=theme_information&request[slug]={}&request[fields][versions]=true', 'themes')
 
 
@@ -42,7 +43,7 @@ def download_dependency(dependencies, slug, url_template, folder):
             return
 
     descriptor = json.loads(requests.get(url_template.format(slug)).text)
-    if env_instance().debug:
+    if environment().debug:
         print("Downloaded descriptor: %s" % json.dumps(descriptor, indent=2))
     download_extract(slug, dependency, descriptor, folder)
 

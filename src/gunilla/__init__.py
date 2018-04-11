@@ -4,23 +4,22 @@ import sys
 
 from gunilla.actions import get_action
 from gunilla.debug import error
-from gunilla.environment import instance
+from gunilla.environment import environment
 from gunilla.exceptions import ActionException
 
 def main():
-    environment = instance()
-    environment.read_args()
+    environment().read_args()
 
-    if environment.debug:
+    if environment().debug:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.ERROR)
 
     try:
-        action = get_action(environment.action)
+        action = get_action(environment().action)
     except ActionException as e:
-        error("Unrecognized action: {}".format(environment.action), e)
-        environment.print_usage()
+        error("Unrecognized action: {}".format(environment().action), e)
+        environment().print_usage()
         sys.exit(2)
 
     try:

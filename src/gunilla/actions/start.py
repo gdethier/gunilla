@@ -1,5 +1,6 @@
-from gunilla.actions.impl.docker_composer_actions import Start
-
+from gunilla.docker import print_howto
+from gunilla.infra import infrastructure
 
 def run():
-    Start().run()
+    infrastructure().start()
+    print_howto()

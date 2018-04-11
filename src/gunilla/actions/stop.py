@@ -1,5 +1,4 @@
-from gunilla.actions.impl.docker_composer_actions import Stop
-
+from gunilla.infra import infrastructure
 
 def run():
-    Stop().run()
+    infrastructure().stop()

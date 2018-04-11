@@ -90,5 +90,5 @@ class Environment(object):
 _environment = Environment()
 
 
-def instance():
+def environment():
     return _environment
