@@ -1,5 +1,5 @@
 from gunilla.theme_builder import run_builder
-import os
+from gunilla.workspace import workspace
 
 def run():
-    run_builder(os.getcwd())
+    run_builder(workspace().directory)

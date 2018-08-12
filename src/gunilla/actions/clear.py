@@ -12,6 +12,6 @@ def run():
     print("!!! WARNING !!!")
     print("")
 
-    answer = raw_input("Do you really want to clear the project? [Yes,No]")
+    answer = raw_input("Do you really want to clear the project? [Yes,No] ")
     if answer == 'Yes':
         infrastructure().clear()

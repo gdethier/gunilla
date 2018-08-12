@@ -1,7 +1,10 @@
+import logging
 from gunilla.docker import get_wordpress_container
 from gunilla.exceptions import ActionException
 import os
 import subprocess
+
+logger = logging.getLogger(__name__)
 
 
 class ContainerFileAction(object):
@@ -45,6 +48,8 @@ class Install(ContainerFileAction):
     def copy_components(self, component_type):
         if os.path.isdir(component_type):
             self.copy_to_container('{}/.'.format(component_type), '/var/www/html/wp-content/{}/'.format(component_type), 'www-data')
+        else:
+            logger.debug("%s is not a component dir" % os.path.abspath(component_type))
 
 
 class Uninstall(ContainerFileAction):

@@ -1,5 +1,4 @@
 from gunilla.exceptions import WorkspaceException, ActionException
-from gunilla.infra import infrastructure
 from gunilla.workspace import workspace
 import os
 import logging
@@ -17,6 +16,5 @@ def run():
 
     try:
         workspace().init()
-        infrastructure().define()
     except WorkspaceException as e:
         raise ActionException(e)

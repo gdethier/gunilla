@@ -1,64 +1,124 @@
-import subprocess
-
 from logging import getLogger
-from gunilla.docker import wait_wordpress_container
+from gunilla.docker import wait_wordpress_container, DockerClient
 from gunilla.workspace import workspace
 
 
 logger = getLogger(__name__)
 
 
-COMPOSER_FILE_CONTENT = \
-"""
-version: '2'
-
-services:
-   db:
-     image: mysql:5.7
-     volumes:
-       - db_data:/var/lib/mysql
-     restart: "no"
-     environment:
-       MYSQL_ROOT_PASSWORD: wordpress
-       MYSQL_DATABASE: wordpress
-       MYSQL_USER: wordpress
-       MYSQL_PASSWORD: wordpress
-   wordpress:
-     depends_on:
-       - db
-     image: wordpress:latest
-     restart: "no"
-     environment:
-       WORDPRESS_DB_HOST: db:3306
-       WORDPRESS_DB_PASSWORD: wordpress
-
-volumes:
-   db_data:
-"""
-
-
 class Infrastructure(object):
 
-    def define(self):
-        with open(workspace()._composer_file_name(), 'w') as f:
-            f.write(COMPOSER_FILE_CONTENT)
+    def __init__(self):
+        self.config = workspace().config()
+        self.client = DockerClient()
 
     def start(self):
-        self._run_composer(['up', '-d'])
+        self._create_db_volume()
+        self._create_network()
+        self._create_db_container()
+        self._create_wordpress_container()
+
+        self.db_container.start()
+        self.wordpress_container.start()
+
         wait_wordpress_container()
 
-    def _run_composer(self, args):
-        workspace().change_to_composer_dir()
-        command_line = [ 'docker-compose' ]
-        command_line.extend(args)
-        subprocess.call(command_line)
+    def _create_db_volume(self):
+        volume_name = self._db_volume_name()
+        self.db_volume = self.client.get_volume(volume_name)
+        if self.db_volume is None:
+            self.db_volume = self.client.create_volume(volume_name)
+
+    def _db_volume_name(self):
+        return self.config.project_name + "_db_data"
+
+    def _create_network(self):
+        network_name = self._network_name()
+        self.network = self.client.get_network(network_name)
+        if self.network is None:
+            self.network = self.client.create_network(network_name)
+
+    def _network_name(self):
+        return self.config.project_name + "_default"
+
+    def _create_db_container(self):
+        container_name = self._db_container_name()
+        self.db_container = self.client.get_container(container_name)
+        if self.db_container is None:
+            volumes = {
+                self._db_volume_name(): {
+                    'bind': '/var/lib/mysql',
+                    'mode': 'rw'
+                }
+            }
+            network_name = self._network_name()
+            environment= {
+                "MYSQL_ROOT_PASSWORD": "wordpress",
+                "MYSQL_DATABASE": "wordpress",
+                "MYSQL_USER": "wordpress",
+                "MYSQL_PASSWORD": "wordpress"
+            }
+            self.db_container = self.client.create_container(name=container_name,
+                                                             image="mysql:5.7",
+                                                             volumes=volumes,
+                                                             network_name=network_name,
+                                                             environment=environment)
+            self.network.disconnect(self.db_container)
+            self.network.connect(self.db_container,
+                                 aliases=["db"])
+
+    def _db_container_name(self):
+        return self.config.project_name + "_db_1"
+
+    def _create_wordpress_container(self):
+        container_name = self._wordpress_container_name()
+        self.wordpress_container = self.client.get_container(container_name)
+        if self.wordpress_container is None:
+            network_name = self._network_name()
+            environment= {
+                "WORDPRESS_DB_HOST": "db:3306",
+                "WORDPRESS_DB_PASSWORD": "wordpress"
+            }
+            self.wordpress_container = self.client.create_container(name=container_name,
+                                                                    image="wordpress:latest",
+                                                                    network_name=network_name,
+                                                                    environment=environment)
+
+    def _wordpress_container_name(self):
+        return self.config.project_name + "_wordpress_1"
 
     def stop(self):
-        self._run_composer(['stop'])
+        self._stop_wordpress_container()
+        self._stop_db_container()
+
+    def _stop_wordpress_container(self):
+        container = self.client.get_container(self._wordpress_container_name())
+        if container:
+            container.stop()
+
+    def _stop_db_container(self):
+        container = self.client.get_container(self._db_container_name())
+        if container:
+            container.stop()
 
     def clear(self):
         self.stop()
-        self._run_composer(['down', '-v'])
+        self._remove_wordpress_container()
+        self._remove_db_container()
+        self._remove_network()
+        self._remove_db_volume()
+
+    def _remove_wordpress_container(self):
+        self.client.remove_container(self._wordpress_container_name())
+
+    def _remove_db_container(self):
+        self.client.remove_container(self._db_container_name())
+
+    def _remove_network(self):
+        self.client.remove_network(self._network_name())
+
+    def _remove_db_volume(self):
+        self.client.remove_network(self._db_volume_name())
 
 
 _instance = None

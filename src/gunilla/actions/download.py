@@ -13,6 +13,7 @@ import tempfile
 repository = repo_instance()
 
 def run():
+    os.chdir(workspace().directory)
     plugin_dependencies = workspace().config().dependencies.plugins
     copy_dependencies(plugin_dependencies, 'https://api.wordpress.org/plugins/info/1.0/{}.json', 'plugins')
 
