@@ -1,8 +1,8 @@
 import logging
-from gunilla.docker import get_wordpress_container
 from gunilla.exceptions import ActionException
 import os
 import subprocess
+from gunilla.infra import infrastructure
 
 logger = logging.getLogger(__name__)
 
@@ -10,21 +10,21 @@ logger = logging.getLogger(__name__)
 class ContainerFileAction(object):
 
     def run(self):
-        container = get_wordpress_container()
+        container = infrastructure().get_wordpress_container()
         if not container:
             raise ActionException("This WP project must first be started")
         self.run_with_container()
 
     def copy_to_container(self, local_path, container_path, owner = None):
-        self.docker_exec(['cp', local_path, '{}:{}'.format(get_wordpress_container().id, container_path)])
+        self.docker_exec(['cp', local_path, '{}:{}'.format(infrastructure().get_wordpress_container().id, container_path)])
         if owner:
             self.exec_on_container(['chown', '-R', '{}:{}'.format(owner, owner), container_path])
 
     def copy_from_container(self, container_path, local_path):
-        self.docker_exec(['cp', '{}:{}'.format(get_wordpress_container().id, container_path), local_path])
+        self.docker_exec(['cp', '{}:{}'.format(infrastructure().get_wordpress_container().id, container_path), local_path])
 
     def exec_on_container(self, command_line):
-        full_command_line = ['exec', '{}'.format(get_wordpress_container().id)]
+        full_command_line = ['exec', '{}'.format(infrastructure().get_wordpress_container().id)]
         full_command_line.extend(command_line)
         self.docker_exec(full_command_line)
 
@@ -61,7 +61,7 @@ class Uninstall(ContainerFileAction):
     def remove_components(self, component_type):
         if os.path.isdir(component_type):
             for dir_item in os.listdir('{}'.format(component_type)):
-                self.docker_exec(['exec', '{}'.format(get_wordpress_container().id), 'rm', '-rf', '/var/www/html/wp-content/{}/{}'.format(component_type, dir_item)])
+                self.docker_exec(['exec', '{}'.format(infrastructure().get_wordpress_container().id), 'rm', '-rf', '/var/www/html/wp-content/{}/{}'.format(component_type, dir_item)])
 
 
 ENABLE_MULTISITE_SCRIPT = \

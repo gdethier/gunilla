@@ -17,13 +17,9 @@ class Workspace(object):
         self._config = None
 
     def is_configured(self):
-        return os.path.exists(self._composer_file_name())
-    
-    def _composer_file_name(self):
-        return os.path.join(self._composer_dir_name(), "docker-compose.yml")
-
-    def _composer_dir_name(self):
-        return os.path.join(self._dir, "gunilla", self.config().project_name)
+        return os.path.exists(os.path.join(self._dir, "prototypes")) and \
+            os.path.exists(os.path.join(self._dir, "themes")) and \
+            os.path.exists(os.path.join(self._dir, "plugins"))
 
     def config(self):
         if not self._config:
@@ -50,9 +46,6 @@ class Workspace(object):
             project_template = TemplateFolder(project_template_path)
             project_template.copy_to(self._dir)
             self._fix_project_config(project_name)
-
-        if not os.path.exists(self._composer_dir_name()):
-            os.makedirs(self._composer_dir_name())
 
     def _create_default_dirs(self):
         prototypes_path = os.path.join(self._dir, "prototypes")

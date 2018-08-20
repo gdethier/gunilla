@@ -1,8 +1,8 @@
-from gunilla.docker import get_wordpress_container_ip
 from gunilla.exceptions import ActionException
 from gunilla.workspace import workspace
 import shutil
 import time
+from gunilla.infra import infrastructure
 
 
 class HostAction(object):
@@ -59,7 +59,7 @@ class RegisterHost(HostAction):
             raise ActionException("Host '{}' is already registered".format(workspace().config().project_name))
 
     def _run_after_backup(self):
-        ip_address = get_wordpress_container_ip()
+        ip_address = infrastructure().get_wordpress_container_ip()
         self.register(ip_address)
 
 
@@ -80,6 +80,6 @@ class ReregisterHost(HostAction):
             raise ActionException("Host '{}' was not registered".format(workspace().config().project_name))
 
     def _run_after_backup(self):
-        ip_address = get_wordpress_container_ip()
+        ip_address = infrastructure().get_wordpress_container_ip()
         self.deregister()
         self.register(ip_address)

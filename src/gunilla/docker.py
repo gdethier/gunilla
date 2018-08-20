@@ -2,8 +2,6 @@ from __future__ import absolute_import
 from logging import getLogger
 import docker
 from docker.errors import NotFound
-from gunilla.workspace import workspace
-from time import sleep
 
 
 logger = getLogger(__name__)
@@ -108,26 +106,3 @@ class Network(object):
         self._network.connect(container._container,
                                  aliases=aliases)
 
-
-def get_wordpress_container():
-    client = DockerClient()
-    return client.get_container(workspace().config().wordpress_container_name())
-
-def get_wordpress_container_ip():
-    container = get_wordpress_container()
-    return container.get_ip('{}_default'.format(workspace().config().container_base_name()))
-
-def wait_wordpress_container():
-    while True:
-        try:
-            return get_wordpress_container()
-        except NotFound:
-            print("Container not yet available, waiting for 3 secs...")
-            sleep(3)
-
-def print_howto():
-    print("Connect to WP via:")
-    print("- http://{}/".format(get_wordpress_container_ip()))
-    print("- http://{}/ (you need first to run 'register_host')".format(workspace().config().project_name))
-    print("")
-    print("Note: If it is the first time you start the project, you might have to wait a few minutes before WP is actually available.")

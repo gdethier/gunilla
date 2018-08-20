@@ -1,6 +1,7 @@
 from logging import getLogger
-from gunilla.docker import wait_wordpress_container, DockerClient
+from gunilla.docker import DockerClient
 from gunilla.workspace import workspace
+from time import sleep
 
 
 logger = getLogger(__name__)
@@ -14,6 +15,7 @@ class Infrastructure(object):
 
     def start(self):
         self._create_db_volume()
+        self._create_wordpress_volume()
         self._create_network()
         self._create_db_container()
         self._create_wordpress_container()
@@ -21,16 +23,31 @@ class Infrastructure(object):
         self.db_container.start()
         self.wordpress_container.start()
 
-        wait_wordpress_container()
+        self._wait_container(self._wordpress_container_name())
 
     def _create_db_volume(self):
         volume_name = self._db_volume_name()
-        self.db_volume = self.client.get_volume(volume_name)
-        if self.db_volume is None:
-            self.db_volume = self.client.create_volume(volume_name)
+        self.db_volume = self._create_volume(volume_name)
+
+    def _create_volume(self, volume_name):
+        volume = self.client.get_volume(volume_name)
+        if volume is None:
+            return volume
+        else:
+            return self.client.create_volume(volume_name)
 
     def _db_volume_name(self):
-        return self.config.project_name + "_db_data"
+        return self._base_name() + "_db_data"
+
+    def _base_name(self):
+        return "gunilla_" + self.config.project_name
+
+    def _create_wordpress_volume(self):
+        volume_name = self._wordpress_volume_name()
+        self.wordpress_volume = self._create_volume(volume_name)
+
+    def _wordpress_volume_name(self):
+        return self._base_name() + "_wordpress_data"
 
     def _create_network(self):
         network_name = self._network_name()
@@ -39,7 +56,7 @@ class Infrastructure(object):
             self.network = self.client.create_network(network_name)
 
     def _network_name(self):
-        return self.config.project_name + "_default"
+        return self._base_name() + "_default"
 
     def _create_db_container(self):
         container_name = self._db_container_name()
@@ -68,12 +85,18 @@ class Infrastructure(object):
                                  aliases=["db"])
 
     def _db_container_name(self):
-        return self.config.project_name + "_db_1"
+        return self._base_name() + "_db"
 
     def _create_wordpress_container(self):
         container_name = self._wordpress_container_name()
         self.wordpress_container = self.client.get_container(container_name)
         if self.wordpress_container is None:
+            volumes = {
+                self._wordpress_volume_name(): {
+                    'bind': '/var/www/html',
+                    'mode': 'rw'
+                }
+            }
             network_name = self._network_name()
             environment= {
                 "WORDPRESS_DB_HOST": "db:3306",
@@ -81,11 +104,12 @@ class Infrastructure(object):
             }
             self.wordpress_container = self.client.create_container(name=container_name,
                                                                     image="wordpress:latest",
+                                                                    volumes=volumes,
                                                                     network_name=network_name,
                                                                     environment=environment)
 
     def _wordpress_container_name(self):
-        return self.config.project_name + "_wordpress_1"
+        return self._base_name() + "_wordpress"
 
     def stop(self):
         self._stop_wordpress_container()
@@ -119,6 +143,23 @@ class Infrastructure(object):
 
     def _remove_db_volume(self):
         self.client.remove_network(self._db_volume_name())
+
+    def _wait_container(self, name):
+        container = self.client.get_container(name)
+        while container is None:
+            container = self.client.get_container(name)
+            print("Container not yet available, waiting for 3 secs...")
+            sleep(3)
+
+    def get_wordpress_container(self):
+        return self.client.get_container(self._wordpress_container_name())
+
+    def get_wordpress_container_ip(self):
+        container = self.get_wordpress_container()
+        if container:
+            return container.get_ip(self._network_name())
+        else:
+            return None
 
 
 _instance = None
