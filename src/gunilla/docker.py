@@ -59,6 +59,11 @@ class DockerClient(object):
         if network:
             network.remove()
 
+    def remove_volume(self, name):
+        volume = self.get_volume(name)
+        if volume:
+            volume.remove()
+
 
 class Container(object):
 

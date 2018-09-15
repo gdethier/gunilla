@@ -36,6 +36,7 @@ class Environment(object):
         parser.add_argument('--prototype_template_path', dest='prototype_template_path', help="Path to prototype template")
         parser.add_argument('--project_template_name', dest='project_template_name', help="Prototype template name")
         parser.add_argument('--project_template_path', dest='project_template_path', help="Path to project template")
+        parser.add_argument('--clear_volumes', dest='clear_volumes', action='store_true', help="Clear data volumes")
         return parser
 
     def _try_read_environment_file(self):
@@ -61,6 +62,7 @@ class Environment(object):
         self.action = args.actions[0]
         self.debug = args.debug
         self.force = args.force
+        self.clear_volumes = args.clear_volumes
         self.workspace = args.workspace
 
         self.prototype_name = args.prototype_name

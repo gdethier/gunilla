@@ -161,6 +161,10 @@ class Infrastructure(object):
         else:
             return None
 
+    def clear_volumes(self):
+        self.client.remove_volume(self._db_volume_name())
+        self.client.remove_volume(self._wordpress_volume_name())
+
 
 _instance = None
 
