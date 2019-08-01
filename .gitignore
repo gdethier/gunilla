@@ -2,3 +2,4 @@
 .pydevproject
 /dist
 *.pyc
+gunilla.egg-info

@@ -4,12 +4,13 @@ dist_file = dist/$(name)-$(version).tar.gz
 
 all : $(dist_file)
 
-build :
+build : $(dist_file)
+
+$(dist_file) :
 	cd src; python setup.py sdist --dist-dir=../dist
 
-install : build
+install : $(dist_file)
 	pip install $(dist_file) --upgrade
-	rm -rf src/build/ src/dist/ src/*.egg-info
 
 clean :
 	rm -rf dist
