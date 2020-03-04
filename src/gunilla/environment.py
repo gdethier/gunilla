@@ -27,7 +27,7 @@ class Environment(object):
 
     def _build_arg_parser(self):
         parser = argparse.ArgumentParser(description='WordPress theme and plug-in development tool')
-        parser.add_argument('actions', choices=['init', 'start', 'stop', 'register_host', 'deregister_host', 'reregister_host', 'clear', 'download', 'install', 'deploy', 'uninstall', 'build_themes', 'enable_multisite', 'complete_multisite'], help='An action to execute')
+        parser.add_argument('action', choices=['add_prototype', 'init', 'start', 'stop', 'register_host', 'deregister_host', 'reregister_host', 'clear', 'download', 'install', 'deploy', 'uninstall', 'build_themes', 'enable_multisite', 'complete_multisite'], help='An action to execute')
         parser.add_argument('--debug', dest='debug', action='store_true', help="Enables debug mode")
         parser.add_argument('--force', dest='force', action='store_true', help="Forces execution of some operations")
         parser.add_argument('--workspace', dest='workspace', help="Workspace path (default is current directory)")
@@ -59,7 +59,7 @@ class Environment(object):
 
     def read_args(self):
         args = self._parser.parse_args()
-        self.action = args.actions[0]
+        self.action = args.action
         self.debug = args.debug
         self.force = args.force
         self.clear_volumes = args.clear_volumes
