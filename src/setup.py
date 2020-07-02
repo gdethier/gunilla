@@ -6,7 +6,7 @@ sys.path.append('src');
 setup(
     name='gunilla',
 
-    version='0.2.0.dev1',
+    version='0.3.0.dev1',
 
     description='Gunilla',
     long_description='Gunilla',
@@ -24,8 +24,8 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7'
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.8'
     ],
 
     keywords='wordpress',

@@ -1,4 +1,4 @@
 (
     export PYTHONPATH=$PYTHONPATH:src
-    python -m gunilla --debug "$@"
+    python3 -m gunilla --debug "$@"
 )
