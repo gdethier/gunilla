@@ -77,7 +77,7 @@ class Workspace(object):
 
     def init_config_file(self):
         config_map = {}
-        config_map["name"] = raw_input("Project name: ")
+        config_map["name"] = input("Project name: ")
         with open(self.config_file_path(), 'w') as f:
             json.dump(config_map, f, indent=4)
 
